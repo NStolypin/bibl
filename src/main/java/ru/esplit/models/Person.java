@@ -8,6 +8,8 @@ public class Person {
     @NotEmpty(message = "name should not be empty")
     private String name;
 
+    public Person() {}
+    
     public Person(int id, String name) {
         this.name = name;
     }

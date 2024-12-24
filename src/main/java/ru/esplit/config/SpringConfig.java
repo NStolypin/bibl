@@ -38,7 +38,7 @@ public class SpringConfig implements WebMvcConfigurer {
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
         templateResolver.setCharacterEncoding("UTF-8");
         templateResolver.setApplicationContext(applicationContext);
-        templateResolver.setPrefix("/WEB-INF/views");
+        templateResolver.setPrefix("/WEB-INF/view/");
         templateResolver.setSuffix(".html");
         return templateResolver;
     }
@@ -60,7 +60,7 @@ public class SpringConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public DataSource DataSources() {
+    public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(environment.getProperty("driver"));
         dataSource.setUrl(environment.getProperty("url"));
@@ -71,6 +71,6 @@ public class SpringConfig implements WebMvcConfigurer {
 
     @Bean
     public JdbcTemplate jdbcTemplate() {
-        return new JdbcTemplate();
+        return new JdbcTemplate(dataSource());
     }
 }
