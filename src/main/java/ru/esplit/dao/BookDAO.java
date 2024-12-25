@@ -2,8 +2,11 @@ package ru.esplit.dao;
 
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import ru.esplit.models.Book;
 
+@Component
 public interface BookDAO {
     List<Book> getAll();
     Book show(int book_id);
