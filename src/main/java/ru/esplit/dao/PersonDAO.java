@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import ru.esplit.models.Book;
 import ru.esplit.models.Person;
 
 @Component
@@ -14,4 +15,5 @@ public interface PersonDAO {
     void save(Person person);
     void update(int id, Optional<Person> updatePerson);
     void delete(int id);
+    List<Book> getBooksByPersonId(int id);
 }

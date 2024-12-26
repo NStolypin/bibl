@@ -1,6 +1,7 @@
 package ru.esplit.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -8,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import ru.esplit.models.Book;
+import ru.esplit.models.Person;
 
 @Component
 public class BookDAOImpl implements BookDAO {
@@ -25,9 +27,9 @@ public class BookDAOImpl implements BookDAO {
     }
 
     @Override
-    public Book show(int book_id) {
+    public Optional<Book> show(int book_id) {
         return jdbcTemplate.query("SELECT * FROM Book WHERE book_id=?", new BeanPropertyRowMapper<>(Book.class), book_id)
-                .stream().findAny().orElse(null);
+                .stream().findAny();
     }
 
     @Override
@@ -47,15 +49,18 @@ public class BookDAOImpl implements BookDAO {
     }
 
     @Override
-    public void takeTheBook(int book_id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'takeTheBook'");
+    public void assign(int book_id, Person selectedPerson) {
+       jdbcTemplate.update("UPDATE Book SET person_id=? WHERE book_id=?", selectedPerson.getPerson_id(), book_id);
     }
 
     @Override
-    public void returnTheBook(int book_id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'returnTheBook'");
+    public void release(int book_id) {
+        jdbcTemplate.update("UPDATE Book SET person_id=NULL WHERE book_id=?", book_id);
     }
 
+    @Override
+    public Optional<Person> getBookOwner(int id) {
+        return jdbcTemplate.query("SELECT Person.* FROM Book JOIN Person ON Book.person_id = Person.person_id " +
+                "WHERE Book.book_id=?", new BeanPropertyRowMapper<>(Person.class), id).stream().findAny();
+    }
 }

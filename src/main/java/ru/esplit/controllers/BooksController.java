@@ -1,5 +1,7 @@
 package ru.esplit.controllers;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 import ru.esplit.dao.BookDAO;
 import ru.esplit.dao.BookDAOImpl;
+import ru.esplit.dao.PersonDAO;
+import ru.esplit.dao.PersonDAOImpl;
 import ru.esplit.models.Book;
 import ru.esplit.models.Person;
 
@@ -23,10 +27,12 @@ import ru.esplit.models.Person;
 public class BooksController {
 
     private BookDAO bookDAO;
+    private PersonDAO personDAO;
 
     @Autowired
-    public BooksController(BookDAOImpl bookDAO) {
+    public BooksController(BookDAOImpl bookDAO, PersonDAOImpl personDAO) {
         this.bookDAO = bookDAO;
+        this.personDAO = personDAO;
     }
 
     @GetMapping()
@@ -36,9 +42,22 @@ public class BooksController {
     }
 
     @GetMapping("/{book_id}")
-    public String show(@PathVariable("book_id") int book_id, Model model) {
-        model.addAttribute("book", bookDAO.show(book_id));
-        return "books/show";
+    public String show(@PathVariable("book_id") int book_id, Model model, @ModelAttribute("person") Person person) {
+        Optional<Book> bookO = bookDAO.show(book_id);
+        if (bookO.isPresent()) {
+            Optional<Person> bookOwner = bookDAO.getBookOwner(book_id);
+            if(bookOwner.isPresent()) {
+                model.addAttribute("owner", bookOwner.get());
+            } else {
+                model.addAttribute("people", personDAO.getAll());
+            }
+            model.addAttribute("book", bookO.get());
+            return "books/show";
+        } else {
+            return "redirect:/books";
+        }
+
+        
     }
 
     @GetMapping("/new")
@@ -58,8 +77,13 @@ public class BooksController {
 
     @GetMapping("/{book_id}/edit")
     public String edit(Model model, @PathVariable("book_id") int book_id) {
-        model.addAttribute("book", bookDAO.show(book_id));
-        return "books/edit";
+        Optional<Book> bookO = bookDAO.show(book_id);
+        if(bookO.isPresent()) {
+            model.addAttribute("book", bookO.get());
+            return "books/edit";
+        } else {
+            return "redirect:/books";
+        }
     }
 
     @PatchMapping("/{book_id}")
@@ -76,5 +100,17 @@ public class BooksController {
     public String delete(@PathVariable("book_id") int book_id) {
         bookDAO.delete(book_id);
         return "redirect:/books";
+    }
+
+    @PatchMapping("/{id}/release")
+    public String release(@PathVariable("id") int id) {
+        bookDAO.release(id);
+        return "redirect:/books/" + id;
+    }
+
+    @PatchMapping("/{id}/assign")
+    public String assign(@PathVariable("id") int id, @ModelAttribute("person") Person selectedPerson) {
+        bookDAO.assign(id, selectedPerson);
+        return "redirect:/books/" + id;
     }
 }

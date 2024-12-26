@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import ru.esplit.models.Book;
 import ru.esplit.models.Person;
 
 @Component
@@ -46,5 +47,10 @@ public class PersonDAOImpl implements PersonDAO {
     @Override
     public void delete(int person_id) {
         jdbcTemplate.update("DELETE FROM Person WHERE person_id=?", person_id);
+    }
+
+    @Override
+    public List<Book> getBooksByPersonId(int id) {
+        return jdbcTemplate.query("SELECT * FROM Book WHERE person_id=?", new BeanPropertyRowMapper<>(Book.class), id);
     }
 }

@@ -39,6 +39,7 @@ public class PeopleController {
         Optional<Person> personO = personDAO.show(person_id);
         if (personO.isPresent()) {
             model.addAttribute("person", personO.get());
+            model.addAttribute("books", personDAO.getBooksByPersonId(person_id));
             return "people/show";
         } else {
             return "redirect:/people";
